@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect } from 'react';
 import { AnalysisResult, AppStatus, JobInfo } from './types';
 import { analyzeCareer, fetchLatestJobsInIndia } from './services/geminiService';
@@ -18,11 +17,11 @@ const App: React.FC = () => {
   const [loadingStep, setLoadingStep] = useState(0);
 
   const loadingMessages = [
-    "Analyzing market trends...",
-    "Comparing global salary data...",
-    "Generating personalized roadmap...",
-    "Fetching learning resources...",
-    "Finalizing results..."
+    "Crunching 2025 Market Trends...",
+    "Benchmarking Global Salaries...",
+    "Curating High-Impact Roadmaps...",
+    "Synthesizing Learning Resources...",
+    "Finalizing Your Career Scan..."
   ];
 
   useEffect(() => {
@@ -30,7 +29,7 @@ const App: React.FC = () => {
     if (status === AppStatus.LOADING) {
       interval = setInterval(() => {
         setLoadingStep((prev) => (prev + 1) % loadingMessages.length);
-      }, 2000);
+      }, 2500);
     } else {
       setLoadingStep(0);
     }
@@ -58,9 +57,10 @@ const App: React.FC = () => {
       const data = await analyzeCareer(description, fileData);
       setResults(data);
       setStatus(AppStatus.RESULTS);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err: any) {
       console.error(err);
-      setError("Failed to analyze career data. Please try again.");
+      setError("Analysis engine timeout. Please ensure your API key is active and try again.");
       setStatus(AppStatus.ERROR);
     }
   }, []);
@@ -73,9 +73,10 @@ const App: React.FC = () => {
       setJobs(data.jobs);
       setGrounding(data.groundingMetadata);
       setStatus(AppStatus.JOBS);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err: any) {
       console.error(err);
-      setError("Failed to fetch latest jobs. Please try again.");
+      setError("Failed to reach job market servers. Please try again.");
       setStatus(AppStatus.ERROR);
     }
   }, []);
@@ -91,70 +92,66 @@ const App: React.FC = () => {
   const canGoBack = status === AppStatus.RESULTS || status === AppStatus.JOBS || status === AppStatus.ERROR;
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
+    <div className="min-h-screen flex flex-col bg-[#0f172a] selection:bg-indigo-500/30">
       <Header 
         onReset={reset} 
         onShowJobs={handleShowJobs}
         canGoBack={canGoBack}
       />
       
-      <main className="flex-grow container mx-auto px-4 py-8 max-w-6xl">
+      <main className="flex-grow container mx-auto px-4 py-12 max-w-6xl relative">
+        {/* Background glow effects */}
+        <div className="absolute top-0 -left-4 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-[128px] opacity-20 animate-blob"></div>
+        <div className="absolute top-0 -right-4 w-72 h-72 bg-indigo-500 rounded-full mix-blend-multiply filter blur-[128px] opacity-20 animate-blob animation-delay-2000"></div>
+
         {status === AppStatus.IDLE && (
-          <>
+          <div className="relative z-10">
             <Hero />
             <AnalysisForm onSubmit={handleStartAnalysis} />
-          </>
+          </div>
         )}
 
         {status === AppStatus.LOADING && (
-          <div className="flex flex-col items-center justify-center py-20">
-            <div className="relative w-20 h-20 mb-8">
-              <div className="absolute inset-0 border-4 border-indigo-100 rounded-full"></div>
-              <div className="absolute inset-0 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+          <div className="flex flex-col items-center justify-center py-32 relative z-10">
+            <div className="relative w-32 h-32 mb-12">
+              <div className="absolute inset-0 border-4 border-slate-800 rounded-full"></div>
+              <div className="absolute inset-0 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-2 h-2 bg-indigo-600 rounded-full animate-ping"></div>
+                <div className="w-4 h-4 bg-cyan-400 rounded-full animate-ping"></div>
               </div>
             </div>
             
-            <h2 className="text-2xl font-black text-slate-800 animate-pulse text-center tracking-tight">
+            <h2 className="text-3xl font-black text-white animate-pulse text-center tracking-tight mb-4">
               {loadingMessages[loadingStep]}
             </h2>
-            
-            <div className="mt-8 w-full max-w-xs bg-slate-200 h-1.5 rounded-full overflow-hidden">
-              <div 
-                className="bg-indigo-600 h-full transition-all duration-300 ease-out" 
-                style={{ width: `${((loadingStep + 1) / loadingMessages.length) * 100}%` }}
-              ></div>
-            </div>
-            
-            <p className="text-slate-400 mt-6 text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2">
-              <span className="w-1 h-1 bg-indigo-500 rounded-full animate-bounce"></span>
-              Ultra-Fast Flash Analysis Active
-              <span className="w-1 h-1 bg-indigo-500 rounded-full animate-bounce [animation-delay:0.2s]"></span>
-            </p>
+            <p className="text-slate-500 text-sm font-bold uppercase tracking-widest">SkillScan Engine Active</p>
           </div>
         )}
 
         {status === AppStatus.ERROR && (
-          <div className="max-w-md mx-auto bg-white p-12 rounded-[2.5rem] shadow-2xl text-center border border-slate-100">
-            <div className="text-red-500 text-6xl mb-6">⚠️</div>
-            <h2 className="text-2xl font-black text-slate-800 mb-2 tracking-tight">Something went wrong</h2>
-            <p className="text-slate-600 mb-8 font-medium">{error}</p>
+          <div className="max-w-md mx-auto bg-slate-900 p-12 rounded-[3rem] shadow-2xl text-center border border-slate-800 relative z-10">
+            <div className="text-red-500 text-7xl mb-6">⚠️</div>
+            <h2 className="text-2xl font-black text-white mb-3 tracking-tight">System Interruption</h2>
+            <p className="text-slate-400 mb-10 font-medium leading-relaxed">{error}</p>
             <button 
               onClick={reset}
-              className="bg-indigo-600 text-white px-8 py-3 rounded-2xl font-black hover:bg-indigo-700 transition shadow-lg active:scale-95"
+              className="w-full bg-slate-800 hover:bg-slate-700 text-white px-8 py-4 rounded-2xl font-black transition-all shadow-lg active:scale-95 border border-slate-700"
             >
-              Try Again
+              Return Home
             </button>
           </div>
         )}
 
         {status === AppStatus.RESULTS && results && (
-          <ResultsView results={results} onReset={reset} />
+          <div className="relative z-10">
+            <ResultsView results={results} onReset={reset} />
+          </div>
         )}
 
         {status === AppStatus.JOBS && (
-          <JobBoard jobs={jobs} groundingMetadata={grounding} />
+          <div className="relative z-10">
+            <JobBoard jobs={jobs} groundingMetadata={grounding} />
+          </div>
         )}
       </main>
 
