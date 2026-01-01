@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useEffect } from 'react';
 import { AnalysisResult, AppStatus, JobInfo } from './types';
 import { analyzeCareer, fetchLatestJobsInIndia } from './services/geminiService';
@@ -17,11 +18,11 @@ const App: React.FC = () => {
   const [loadingStep, setLoadingStep] = useState(0);
 
   const loadingMessages = [
-    "Crunching 2025 Market Trends...",
-    "Benchmarking Global Salaries...",
-    "Curating High-Impact Roadmaps...",
-    "Synthesizing Learning Resources...",
-    "Finalizing Your Career Scan..."
+    "2025 Market Trends Scan ho rahe hain...",
+    "Global Salaries ka vishleshan...",
+    "Aapke liye sateek Roadmap taiyar...",
+    "Learning Resources dhundhe ja rahe hain...",
+    "Bas kuch hi pal aur..."
   ];
 
   useEffect(() => {
@@ -60,7 +61,7 @@ const App: React.FC = () => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err: any) {
       console.error(err);
-      setError("Analysis engine timeout. Please ensure your API key is active and try again.");
+      setError("Analysis engine fail ho gaya. Kripya check karein ki Netlify Dashboard mein API Key set hai ya nahi.");
       setStatus(AppStatus.ERROR);
     }
   }, []);
@@ -76,7 +77,7 @@ const App: React.FC = () => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err: any) {
       console.error(err);
-      setError("Failed to reach job market servers. Please try again.");
+      setError("Job market data nahi mil raha. Kripya thodi der baad try karein.");
       setStatus(AppStatus.ERROR);
     }
   }, []);
@@ -92,7 +93,7 @@ const App: React.FC = () => {
   const canGoBack = status === AppStatus.RESULTS || status === AppStatus.JOBS || status === AppStatus.ERROR;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0f172a] selection:bg-indigo-500/30">
+    <div className="min-h-screen flex flex-col bg-[#0f172a] selection:bg-cyan-500/30">
       <Header 
         onReset={reset} 
         onShowJobs={handleShowJobs}
@@ -100,9 +101,8 @@ const App: React.FC = () => {
       />
       
       <main className="flex-grow container mx-auto px-4 py-12 max-w-6xl relative">
-        {/* Background glow effects */}
-        <div className="absolute top-0 -left-4 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-[128px] opacity-20 animate-blob"></div>
-        <div className="absolute top-0 -right-4 w-72 h-72 bg-indigo-500 rounded-full mix-blend-multiply filter blur-[128px] opacity-20 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-0 -left-4 w-72 h-72 bg-cyan-500 rounded-full mix-blend-multiply filter blur-[128px] opacity-10 animate-blob"></div>
+        <div className="absolute top-0 -right-4 w-72 h-72 bg-indigo-500 rounded-full mix-blend-multiply filter blur-[128px] opacity-10 animate-blob animation-delay-2000"></div>
 
         {status === AppStatus.IDLE && (
           <div className="relative z-10">
@@ -115,7 +115,7 @@ const App: React.FC = () => {
           <div className="flex flex-col items-center justify-center py-32 relative z-10">
             <div className="relative w-32 h-32 mb-12">
               <div className="absolute inset-0 border-4 border-slate-800 rounded-full"></div>
-              <div className="absolute inset-0 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+              <div className="absolute inset-0 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="w-4 h-4 bg-cyan-400 rounded-full animate-ping"></div>
               </div>
@@ -131,13 +131,13 @@ const App: React.FC = () => {
         {status === AppStatus.ERROR && (
           <div className="max-w-md mx-auto bg-slate-900 p-12 rounded-[3rem] shadow-2xl text-center border border-slate-800 relative z-10">
             <div className="text-red-500 text-7xl mb-6">⚠️</div>
-            <h2 className="text-2xl font-black text-white mb-3 tracking-tight">System Interruption</h2>
+            <h2 className="text-2xl font-black text-white mb-3 tracking-tight">System Error</h2>
             <p className="text-slate-400 mb-10 font-medium leading-relaxed">{error}</p>
             <button 
               onClick={reset}
               className="w-full bg-slate-800 hover:bg-slate-700 text-white px-8 py-4 rounded-2xl font-black transition-all shadow-lg active:scale-95 border border-slate-700"
             >
-              Return Home
+              Wapas Home Par Jayein
             </button>
           </div>
         )}

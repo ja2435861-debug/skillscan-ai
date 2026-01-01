@@ -27,18 +27,23 @@ const Header: React.FC<HeaderProps> = ({ onReset, onShowJobs, canGoBack }) => {
             className="flex items-center gap-3 cursor-pointer group"
             onClick={onReset}
           >
+            {/* Logo recreation based on user's image */}
             <div className="relative w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-cyan-500/20 group-hover:scale-105 transition-transform">
-               {/* SkillScan AI Brain Logo */}
                <svg viewBox="0 0 100 100" className="w-full h-full bg-gradient-to-br from-cyan-400 via-indigo-500 to-purple-600 p-1.5">
-                 <path d="M50 20 C35 20 25 32 25 45 C25 55 30 63 38 67 L38 80 L62 80 L62 67 C70 63 75 55 75 45 C75 32 65 20 50 20 Z" fill="white" opacity="0.3"/>
-                 <path d="M42 55 L58 55 L58 45 L68 45 L50 25 L32 45 L42 45 Z" fill="white" />
-                 <path d="M25 45 Q35 40 38 67" fill="none" stroke="white" strokeWidth="1" opacity="0.5"/>
-                 <path d="M75 45 Q65 40 62 67" fill="none" stroke="white" strokeWidth="1" opacity="0.5"/>
+                 <rect x="10" y="10" width="80" height="80" rx="20" fill="white" fillOpacity="0.1" />
+                 <path d="M50 25 C38 25 30 35 30 45 C30 55 35 63 42 67 L42 75 L58 75 L58 67 C65 63 70 55 70 45 C70 35 62 25 50 25 Z" fill="white" opacity="0.3"/>
+                 <path d="M44 60 L56 60 L56 48 L65 48 L50 28 L35 48 L44 48 Z" fill="white" />
+                 <path d="M40 45 Q50 35 60 45" fill="none" stroke="white" strokeWidth="1" opacity="0.4"/>
                </svg>
             </div>
-            <span className="text-2xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-indigo-400 to-purple-400 hidden xs:block">
-              SkillScan AI
-            </span>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-2xl font-black tracking-tight text-white hidden xs:block">
+                SkillScan
+              </span>
+              <span className="text-2xl font-black tracking-tight text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)] hidden xs:block">
+                AI
+              </span>
+            </div>
           </div>
         </div>
         
