@@ -139,7 +139,7 @@ const App: React.FC = () => {
               <p className="text-xs font-black text-indigo-400 uppercase mb-2">Vercel Setup:</p>
               <ul className="text-sm text-slate-300 space-y-2 font-medium">
                 <li>1. Open project on Vercel Dashboard</li>
-                <li>2. Settings > Environment Variables</li>
+                <li>2. Settings &gt; Environment Variables</li>
                 <li>3. Add <b>API_KEY</b> as Key</li>
                 <li>4. Paste your Gemini Key as Value</li>
                 <li>5. Click Save and Redeploy</li>
