@@ -4,7 +4,7 @@ import { AnalysisResult, JobInfo } from "../types";
 
 /**
  * SkillScan AI Service
- * Optimized for Vercel and Netlify production environments.
+ * Optimized for Vercel/Netlify with gemini-3-flash for better quota handling.
  */
 
 const parseGeminiJson = (text: string) => {
@@ -28,7 +28,8 @@ export const analyzeCareer = async (
   }
 
   const ai = new GoogleGenAI({ apiKey });
-  const model = "gemini-3-pro-preview"; // High-quality reasoning for career roadmaps
+  // Using Flash model instead of Pro to avoid 'Quota Exceeded' errors on free tier
+  const model = "gemini-3-flash-preview"; 
   
   const prompt = `
     YOU ARE: SkillScan AI - An expert career mentor.
@@ -70,6 +71,9 @@ export const analyzeCareer = async (
     return parsed as AnalysisResult;
   } catch (error: any) {
     console.error("Gemini Error:", error);
+    if (error.message?.includes("429")) {
+      throw new Error("API Quota khatam ho gaya hai. Kripya 1 minute baad koshish karein ya billing check karein.");
+    }
     throw error;
   }
 };
@@ -79,7 +83,7 @@ export const fetchLatestJobsInIndia = async (): Promise<{ jobs: JobInfo[], groun
   if (!apiKey) throw new Error("API Key missing");
 
   const ai = new GoogleGenAI({ apiKey });
-  const model = "gemini-3-flash-preview"; // Faster for search tasks
+  const model = "gemini-3-flash-preview";
   
   const prompt = "Find 5-10 active tech or corporate job openings in India for 2025. Return as JSON: { \"jobs\": [...] } with keys title, organization, type, location, description, sourceUrl.";
 
@@ -97,7 +101,7 @@ export const fetchLatestJobsInIndia = async (): Promise<{ jobs: JobInfo[], groun
       jobs: data.jobs || [],
       groundingMetadata: response.candidates?.[0]?.groundingMetadata
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Job Search Error:", error);
     return { jobs: [], groundingMetadata: null };
   }
