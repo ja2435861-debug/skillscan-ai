@@ -60,8 +60,8 @@ const App: React.FC = () => {
       setStatus(AppStatus.RESULTS);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err: any) {
-      console.error(err);
-      setError("Analysis engine fail ho gaya. Kripya check karein ki Netlify Dashboard mein API Key set hai ya nahi.");
+      console.error("App Error:", err);
+      setError(err.message || "Something went wrong. Deployment settings check karein.");
       setStatus(AppStatus.ERROR);
     }
   }, []);
@@ -77,7 +77,7 @@ const App: React.FC = () => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err: any) {
       console.error(err);
-      setError("Job market data nahi mil raha. Kripya thodi der baad try karein.");
+      setError("Market data fetch nahi ho raha. Kripya check karein ki API Key sahi hai.");
       setStatus(AppStatus.ERROR);
     }
   }, []);
@@ -121,7 +121,7 @@ const App: React.FC = () => {
               </div>
             </div>
             
-            <h2 className="text-3xl font-black text-white animate-pulse text-center tracking-tight mb-4">
+            <h2 className="text-3xl font-black text-white animate-pulse text-center tracking-tight mb-4 px-4">
               {loadingMessages[loadingStep]}
             </h2>
             <p className="text-slate-500 text-sm font-bold uppercase tracking-widest">SkillScan Engine Active</p>
@@ -129,15 +129,27 @@ const App: React.FC = () => {
         )}
 
         {status === AppStatus.ERROR && (
-          <div className="max-w-md mx-auto bg-slate-900 p-12 rounded-[3rem] shadow-2xl text-center border border-slate-800 relative z-10">
-            <div className="text-red-500 text-7xl mb-6">⚠️</div>
-            <h2 className="text-2xl font-black text-white mb-3 tracking-tight">System Error</h2>
-            <p className="text-slate-400 mb-10 font-medium leading-relaxed">{error}</p>
+          <div className="max-w-2xl mx-auto bg-slate-900 p-12 rounded-[3rem] shadow-2xl text-center border border-slate-800 relative z-10">
+            <div className="text-amber-500 text-7xl mb-6">⚠️</div>
+            <h2 className="text-2xl font-black text-white mb-4 tracking-tight">Configuration Required</h2>
+            <p className="text-slate-400 mb-8 font-medium leading-relaxed">
+              {error}
+            </p>
+            <div className="bg-slate-950 p-6 rounded-2xl mb-8 text-left border border-slate-800">
+              <p className="text-xs font-black text-indigo-400 uppercase mb-2">Vercel Setup:</p>
+              <ul className="text-sm text-slate-300 space-y-2 font-medium">
+                <li>1. Open project on Vercel Dashboard</li>
+                <li>2. Settings > Environment Variables</li>
+                <li>3. Add <b>API_KEY</b> as Key</li>
+                <li>4. Paste your Gemini Key as Value</li>
+                <li>5. Click Save and Redeploy</li>
+              </ul>
+            </div>
             <button 
               onClick={reset}
               className="w-full bg-slate-800 hover:bg-slate-700 text-white px-8 py-4 rounded-2xl font-black transition-all shadow-lg active:scale-95 border border-slate-700"
             >
-              Wapas Home Par Jayein
+              Back to Home
             </button>
           </div>
         )}

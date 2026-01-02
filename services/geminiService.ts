@@ -2,15 +2,10 @@
 import { GoogleGenAI } from "@google/genai";
 import { AnalysisResult, JobInfo } from "../types";
 
-// Safety wrapper to prevent initialization errors if key is missing during build
-const getAIClient = () => {
-  const apiKey = process.env.API_KEY;
-  if (!apiKey) {
-    console.warn("API_KEY is missing. Please set it in Netlify environment variables.");
-    return null;
-  }
-  return new GoogleGenAI({ apiKey });
-};
+/**
+ * SkillScan AI Service
+ * Optimized for Vercel and Netlify production environments.
+ */
 
 const parseGeminiJson = (text: string) => {
   try {
@@ -18,7 +13,7 @@ const parseGeminiJson = (text: string) => {
     const cleanedJson = jsonMatch ? jsonMatch[0] : text;
     return JSON.parse(cleanedJson);
   } catch (e) {
-    console.error("JSON Parse Error:", text);
+    console.error("AI response parse error:", text);
     return null;
   }
 };
@@ -27,53 +22,66 @@ export const analyzeCareer = async (
   userInput: string, 
   fileData?: { data: string; mimeType: string }
 ): Promise<AnalysisResult> => {
-  const ai = getAIClient();
-  if (!ai) throw new Error("API Key not configured correctly.");
+  const apiKey = process.env.API_KEY;
+  if (!apiKey || apiKey === "") {
+    throw new Error("API_KEY nahi mili. Kripya Vercel/Netlify Dashboard mein Environment Variable set karein.");
+  }
 
-  const model = "gemini-3-flash-preview";
+  const ai = new GoogleGenAI({ apiKey });
+  const model = "gemini-3-pro-preview"; // High-quality reasoning for career roadmaps
   
   const prompt = `
     YOU ARE: SkillScan AI - An expert career mentor.
     USER QUERY: "${userInput}"
     
-    TASK: Provide a deep analysis of the career or goal for the 2025-2030 market.
-    LANGUAGE: The response (summary, scope, roadmap tasks, and motivation) MUST be in HINDI or HINGLISH.
+    TASK: 2025-2030 job market ke liye career analysis karein.
+    LANGUAGE: Summary, scope, roadmap aur motivation HINDI ya HINGLISH mein honi chahiye.
     
-    REQUIREMENTS:
-    1. SUMMARY: A concise analysis in Hindi.
-    2. SCOPE: Future demand (2025-2030) in Hindi.
-    3. CAREER PATHS: Top roles with skills required.
-    4. SALARY: Compare India vs 2 top countries.
-    5. ROADMAP: 6-month step-by-step plan in HINDI.
-    6. MOTIVATION: One powerful quote in Hindi.
-
-    RESPONSE FORMAT: STRICT JSON ONLY.
+    JSON STRUCTURE REQUIREMENTS:
+    {
+      "summary": "...",
+      "scopeAnalysis": "...",
+      "careerPaths": [{"title": "...", "description": "...", "relevance": "...", "requiredSkills": [], "jobRoles": []}],
+      "salaryInsights": [{"role": "...", "indiaSalary": "...", "foreignSalaries": [{"country": "...", "salary": "..."}], "highestPayingCountry": "..."}],
+      "roadmap": [{"month": "Month 1-2", "focus": "...", "tasks": [], "resources": [{"name": "...", "url": "..."}]}],
+      "motivation": "..."
+    }
   `;
 
   const contents = fileData 
     ? { parts: [{ text: prompt }, { inlineData: { data: fileData.data, mimeType: fileData.mimeType } }] }
     : { parts: [{ text: prompt }] };
 
-  const response = await ai.models.generateContent({
-    model,
-    contents,
-    config: {
-      systemInstruction: "You are SkillScan AI. You speak in professional Hindi/Hinglish. You provide 2025-2030 career roadmaps.",
-      responseMimeType: "application/json"
-    }
-  });
+  try {
+    const response = await ai.models.generateContent({
+      model,
+      contents,
+      config: {
+        systemInstruction: "You are SkillScan AI. Provide 100% accurate, professional Hindi/Hinglish career advice. Only output raw JSON.",
+        responseMimeType: "application/json",
+        temperature: 0.7
+      }
+    });
 
-  const parsed = parseGeminiJson(response.text || '{}');
-  if (!parsed) throw new Error("Could not parse AI response");
-  return parsed as AnalysisResult;
+    const parsed = parseGeminiJson(response.text || '{}');
+    if (!parsed || !parsed.summary) {
+      throw new Error("AI engine ne response format galat bheja hai. Dubara try karein.");
+    }
+    return parsed as AnalysisResult;
+  } catch (error: any) {
+    console.error("Gemini Error:", error);
+    throw error;
+  }
 };
 
 export const fetchLatestJobsInIndia = async (): Promise<{ jobs: JobInfo[], groundingMetadata: any }> => {
-  const ai = getAIClient();
-  if (!ai) return { jobs: [], groundingMetadata: null };
+  const apiKey = process.env.API_KEY;
+  if (!apiKey) throw new Error("API Key missing");
 
-  const model = "gemini-3-flash-preview";
-  const prompt = "Find 5-10 active job openings (Public/Private) in India for 2025 in JSON format.";
+  const ai = new GoogleGenAI({ apiKey });
+  const model = "gemini-3-flash-preview"; // Faster for search tasks
+  
+  const prompt = "Find 5-10 active tech or corporate job openings in India for 2025. Return as JSON: { \"jobs\": [...] } with keys title, organization, type, location, description, sourceUrl.";
 
   try {
     const response = await ai.models.generateContent({
@@ -90,7 +98,7 @@ export const fetchLatestJobsInIndia = async (): Promise<{ jobs: JobInfo[], groun
       groundingMetadata: response.candidates?.[0]?.groundingMetadata
     };
   } catch (error) {
-    console.error("Job Fetch Error:", error);
+    console.error("Job Search Error:", error);
     return { jobs: [], groundingMetadata: null };
   }
 };
