@@ -3,8 +3,14 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>SkillScan AI - Expert Career Mentor</title>
+    <!-- Android/PWA Meta Tags -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
@@ -14,15 +20,36 @@
         color: #f8fafc;
         margin: 0;
         overflow-x: hidden;
+        /* Prevent elastic scroll on mobile */
+        overscroll-behavior-y: none;
+        -webkit-tap-highlight-color: transparent;
       }
       .bg-glass {
         background: rgba(15, 23, 42, 0.7);
         backdrop-filter: blur(12px);
       }
-      ::-webkit-scrollbar { width: 8px; }
-      ::-webkit-scrollbar-track { background: #0f172a; }
-      ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
-      ::-webkit-scrollbar-thumb:hover { background: #334155; }
+      /* Android-like smooth scrolling */
+      html {
+        scroll-behavior: smooth;
+      }
+      ::-webkit-scrollbar { width: 0px; background: transparent; } /* Hide scrollbar for app feel */
+      
+      .android-card {
+        background: rgba(30, 41, 59, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 28px;
+      }
+      
+      .active-tab-indicator {
+        position: absolute;
+        bottom: -2px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 4px;
+        height: 4px;
+        background: #22d3ee;
+        border-radius: 50%;
+      }
     </style>
   <script type="importmap">
 {

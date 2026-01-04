@@ -20,18 +20,18 @@ const App: React.FC = () => {
 
   const loadingMessages = {
     en: [
-      "Scanning 2025 Market Trends...",
-      "Analyzing Global Salaries...",
-      "Preparing your precise Roadmap...",
-      "Finding Learning Resources...",
-      "Just a few more moments..."
+      "AI Scanning 2025 Market...",
+      "Analyzing Future Potential...",
+      "Creating Daily Routine...",
+      "Mapping Growth Paths...",
+      "Almost ready..."
     ],
     hi: [
-      "2025 मार्केट ट्रेंड्स स्कैन हो रहे हैं...",
-      "ग्लोबल सैलरी का विश्लेषण हो रहा है...",
-      "आपका सटीक रोडमैप तैयार किया जा रहा है...",
-      "सीखने के रिसोर्सेज ढूंढे जा रहे हैं...",
-      "बस कुछ ही पल और..."
+      "AI 2025 मार्केट को स्कैन कर रहा है...",
+      "आपकी क्षमता का विश्लेषण हो रहा है...",
+      "डेली रूटीन बनाया जा रहा है...",
+      "ग्रोथ पाथ तैयार हो रहे हैं...",
+      "बस कुछ ही पल..."
     ]
   };
 
@@ -40,7 +40,7 @@ const App: React.FC = () => {
     if (status === AppStatus.LOADING) {
       interval = setInterval(() => {
         setLoadingStep((prev) => (prev + 1) % loadingMessages[language].length);
-      }, 2500);
+      }, 2000);
     } else {
       setLoadingStep(0);
     }
@@ -107,69 +107,60 @@ const App: React.FC = () => {
   const canGoBack = status === AppStatus.RESULTS || status === AppStatus.JOBS || status === AppStatus.ERROR;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0f172a] selection:bg-cyan-500/30">
-      <Header 
-        onReset={reset} 
-        onShowJobs={handleShowJobs}
-        canGoBack={canGoBack}
-        language={language}
-        onLanguageChange={setLanguage}
-      />
+    <div className="min-h-screen flex flex-col bg-[#0f172a] text-slate-100 selection:bg-cyan-500/30">
+      {/* HEADER HIDDEN DURING RESULTS FOR APP FEEL (Bottom Nav handles it) */}
+      {status !== AppStatus.RESULTS && (
+        <Header 
+          onReset={reset} 
+          onShowJobs={handleShowJobs}
+          canGoBack={canGoBack}
+          language={language}
+          onLanguageChange={setLanguage}
+        />
+      )}
       
-      <main className="flex-grow container mx-auto px-4 py-12 max-w-6xl relative">
-        <div className="absolute top-0 -left-4 w-72 h-72 bg-cyan-500 rounded-full mix-blend-multiply filter blur-[128px] opacity-10 animate-blob"></div>
-        <div className="absolute top-0 -right-4 w-72 h-72 bg-indigo-500 rounded-full mix-blend-multiply filter blur-[128px] opacity-10 animate-blob animation-delay-2000"></div>
+      <main className={`flex-grow container mx-auto px-4 max-w-6xl relative ${status === AppStatus.RESULTS ? 'pt-2' : 'py-12'}`}>
+        {/* Android Background Accents */}
+        <div className="fixed top-0 left-0 w-full h-full pointer-events-none overflow-hidden z-0">
+          <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-cyan-500/5 rounded-full blur-[120px] animate-pulse"></div>
+          <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-indigo-500/5 rounded-full blur-[120px] animate-pulse animation-delay-2000"></div>
+        </div>
 
         {status === AppStatus.IDLE && (
-          <div className="relative z-10">
+          <div className="relative z-10 animate-in fade-in duration-500">
             <Hero language={language} />
             <AnalysisForm onSubmit={handleStartAnalysis} language={language} />
           </div>
         )}
 
         {status === AppStatus.LOADING && (
-          <div className="flex flex-col items-center justify-center py-32 relative z-10">
-            <div className="relative w-32 h-32 mb-12">
-              <div className="absolute inset-0 border-4 border-slate-800 rounded-full"></div>
-              <div className="absolute inset-0 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-4 h-4 bg-cyan-400 rounded-full animate-ping"></div>
-              </div>
+          <div className="fixed inset-0 z-[200] bg-slate-950 flex flex-col items-center justify-center p-6 animate-in fade-in">
+            <div className="relative w-40 h-40 mb-12">
+               <div className="absolute inset-0 border-8 border-slate-900 rounded-full"></div>
+               <div className="absolute inset-0 border-8 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+               <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-4xl">🧠</div>
+               </div>
             </div>
-            
-            <h2 className="text-3xl font-black text-white animate-pulse text-center tracking-tight mb-4 px-4">
+            <h2 className="text-2xl font-black text-white text-center mb-4 tracking-tight px-4 animate-pulse">
               {loadingMessages[language][loadingStep]}
             </h2>
-            <p className="text-slate-500 text-sm font-bold uppercase tracking-widest">
-              {language === 'hi' ? 'SkillScan इंजन सक्रिय है' : 'SkillScan Engine Active'}
-            </p>
+            <div className="bg-slate-900/50 px-6 py-2 rounded-full border border-slate-800">
+              <span className="text-[10px] font-black text-cyan-400 uppercase tracking-widest">Powered by SkillScan AI</span>
+            </div>
           </div>
         )}
 
         {status === AppStatus.ERROR && (
-          <div className="max-w-2xl mx-auto bg-slate-900 p-12 rounded-[3rem] shadow-2xl text-center border border-slate-800 relative z-10">
-            <div className="text-amber-500 text-7xl mb-6">⚠️</div>
-            <h2 className="text-2xl font-black text-white mb-4 tracking-tight">
-              {language === 'hi' ? 'कॉन्फ़िगरेशन आवश्यक है' : 'Configuration Required'}
-            </h2>
-            <p className="text-slate-400 mb-8 font-medium leading-relaxed">
-              {error}
-            </p>
-            <div className="bg-slate-950 p-6 rounded-2xl mb-8 text-left border border-slate-800">
-              <p className="text-xs font-black text-indigo-400 uppercase mb-2">Vercel Setup:</p>
-              <ul className="text-sm text-slate-300 space-y-2 font-medium">
-                <li>1. Open project on Vercel Dashboard</li>
-                <li>2. Settings &gt; Environment Variables</li>
-                <li>3. Add <b>API_KEY</b> as Key</li>
-                <li>4. Paste your Gemini Key as Value</li>
-                <li>5. Click Save and Redeploy</li>
-              </ul>
-            </div>
+          <div className="max-w-md mx-auto bg-slate-900/80 backdrop-blur-xl p-8 rounded-[2.5rem] shadow-3xl text-center border border-slate-800 relative z-10 mt-10">
+            <div className="text-amber-500 text-6xl mb-6">⚠️</div>
+            <h2 className="text-xl font-black text-white mb-4 tracking-tight">System Notice</h2>
+            <p className="text-slate-400 mb-8 text-sm leading-relaxed">{error}</p>
             <button 
               onClick={reset}
-              className="w-full bg-slate-800 hover:bg-slate-700 text-white px-8 py-4 rounded-2xl font-black transition-all shadow-lg active:scale-95 border border-slate-700"
+              className="w-full bg-slate-800 py-4 rounded-2xl font-black text-white shadow-xl active:scale-95 transition-all"
             >
-              {language === 'hi' ? 'होम पर वापस जाएं' : 'Back to Home'}
+              {language === 'hi' ? 'फिर से कोशिश करें' : 'Try Again'}
             </button>
           </div>
         )}
@@ -187,7 +178,7 @@ const App: React.FC = () => {
         )}
       </main>
 
-      <Footer language={language} />
+      {status === AppStatus.IDLE && <Footer language={language} />}
     </div>
   );
 };
