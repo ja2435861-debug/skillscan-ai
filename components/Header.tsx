@@ -1,12 +1,16 @@
+
 import React from 'react';
+import { Language } from '../types';
 
 interface HeaderProps {
   onReset: () => void;
   onShowJobs: () => void;
   canGoBack: boolean;
+  language: Language;
+  onLanguageChange: (lang: Language) => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ onReset, onShowJobs, canGoBack }) => {
+const Header: React.FC<HeaderProps> = ({ onReset, onShowJobs, canGoBack, language, onLanguageChange }) => {
   return (
     <header className="bg-slate-950/80 backdrop-blur-xl border-b border-slate-800 sticky top-0 z-50">
       <div className="container mx-auto px-4 h-20 flex items-center justify-between">
@@ -19,7 +23,7 @@ const Header: React.FC<HeaderProps> = ({ onReset, onShowJobs, canGoBack }) => {
               <svg className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
-              <span className="text-sm font-black hidden sm:inline">Back</span>
+              <span className="text-sm font-black hidden sm:inline">{language === 'hi' ? 'पीछे' : 'Back'}</span>
             </button>
           )}
           
@@ -27,7 +31,6 @@ const Header: React.FC<HeaderProps> = ({ onReset, onShowJobs, canGoBack }) => {
             className="flex items-center gap-3 cursor-pointer group"
             onClick={onReset}
           >
-            {/* Logo recreation based on user's image */}
             <div className="relative w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-cyan-500/20 group-hover:scale-105 transition-transform">
                <svg viewBox="0 0 100 100" className="w-full h-full bg-gradient-to-br from-cyan-400 via-indigo-500 to-purple-600 p-1.5">
                  <rect x="10" y="10" width="80" height="80" rx="20" fill="white" fillOpacity="0.1" />
@@ -47,20 +50,36 @@ const Header: React.FC<HeaderProps> = ({ onReset, onShowJobs, canGoBack }) => {
           </div>
         </div>
         
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 md:gap-4">
+          {/* Language Switcher */}
+          <div className="flex bg-slate-900 p-1 rounded-xl border border-slate-800">
+            <button 
+              onClick={() => onLanguageChange('en')}
+              className={`px-3 py-1 rounded-lg text-[10px] font-black transition-all ${language === 'en' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+            >
+              EN
+            </button>
+            <button 
+              onClick={() => onLanguageChange('hi')}
+              className={`px-3 py-1 rounded-lg text-[10px] font-black transition-all ${language === 'hi' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+            >
+              हिन्दी
+            </button>
+          </div>
+
           <button 
             onClick={onShowJobs}
             className="text-slate-300 hover:text-cyan-400 font-black text-xs uppercase tracking-widest transition-all hidden md:flex items-center gap-2 bg-slate-900 px-4 py-2.5 rounded-xl border border-slate-800 hover:border-cyan-500/50"
           >
             <span className="bg-cyan-500/20 p-1 rounded-lg">🔥</span>
-            Job Board
+            {language === 'hi' ? 'जॉब बोर्ड' : 'Job Board'}
           </button>
 
           <button 
             onClick={onReset}
-            className="text-white bg-indigo-600 hover:bg-indigo-500 px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-xl shadow-indigo-500/20 active:scale-95"
+            className="text-white bg-indigo-600 hover:bg-indigo-500 px-4 md:px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-xl shadow-indigo-500/20 active:scale-95"
           >
-            New Scan
+            {language === 'hi' ? 'नया स्कैन' : 'New Scan'}
           </button>
         </div>
       </div>

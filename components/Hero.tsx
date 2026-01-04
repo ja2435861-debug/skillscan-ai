@@ -1,15 +1,19 @@
-import React from 'react';
 
-const Hero: React.FC = () => {
+import React from 'react';
+import { Language } from '../types';
+
+interface HeroProps {
+  language: Language;
+}
+
+const Hero: React.FC<HeroProps> = ({ language }) => {
   return (
     <div className="text-center mb-16 animate-in fade-in slide-in-from-bottom-6 duration-1000">
       <div className="flex justify-center mb-10">
         <div className="relative w-32 h-32 md:w-48 md:h-48 p-1.5 rounded-[2.5rem] bg-gradient-to-br from-cyan-400 via-indigo-500 to-purple-600 shadow-[0_0_50px_rgba(34,211,238,0.3)]">
            <div className="w-full h-full bg-slate-950 rounded-[2.2rem] flex items-center justify-center relative overflow-hidden group">
-             {/* Glowing Animation Background */}
              <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-cyan-500 via-transparent to-transparent animate-pulse"></div>
              
-             {/* Logo SVG */}
              <svg viewBox="0 0 100 100" className="w-24 h-24 md:w-36 md:h-36 relative z-10 drop-shadow-[0_0_15px_rgba(34,211,238,0.6)]">
                 <rect x="10" y="10" width="80" height="80" rx="22" fill="white" fillOpacity="0.05" />
                 <path 
@@ -33,8 +37,11 @@ const Hero: React.FC = () => {
       </h1>
       
       <p className="text-xl md:text-3xl text-slate-400 max-w-3xl mx-auto leading-relaxed font-bold tracking-tight">
-        2025-2030 Career Expert Mentor. <br className="hidden md:block" />
-        Apne career ka bhavishya aaj hi scan karein.
+        {language === 'hi' ? (
+          <>भारत के भविष्य के कार्यबल को सशक्त बनाना। <br className="hidden md:block" /> अपने कौशल को उच्च-भुगतान वाले अवसरों में बदलें।</>
+        ) : (
+          <>Empowering India's Next Workforce. <br className="hidden md:block" /> Convert your skills into high-paying job opportunities.</>
+        )}
       </p>
     </div>
   );

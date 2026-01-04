@@ -1,6 +1,6 @@
 
 import React, { useState, useCallback, useEffect } from 'react';
-import { AnalysisResult, AppStatus, JobInfo } from './types';
+import { AnalysisResult, AppStatus, JobInfo, Language } from './types';
 import { analyzeCareer, fetchLatestJobsInIndia } from './services/geminiService';
 import Header from './components/Header';
 import Hero from './components/Hero';
@@ -16,26 +16,36 @@ const App: React.FC = () => {
   const [grounding, setGrounding] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [loadingStep, setLoadingStep] = useState(0);
+  const [language, setLanguage] = useState<Language>('en');
 
-  const loadingMessages = [
-    "2025 Market Trends Scan ho rahe hain...",
-    "Global Salaries ka vishleshan...",
-    "Aapke liye sateek Roadmap taiyar...",
-    "Learning Resources dhundhe ja rahe hain...",
-    "Bas kuch hi pal aur..."
-  ];
+  const loadingMessages = {
+    en: [
+      "Scanning 2025 Market Trends...",
+      "Analyzing Global Salaries...",
+      "Preparing your precise Roadmap...",
+      "Finding Learning Resources...",
+      "Just a few more moments..."
+    ],
+    hi: [
+      "2025 मार्केट ट्रेंड्स स्कैन हो रहे हैं...",
+      "ग्लोबल सैलरी का विश्लेषण हो रहा है...",
+      "आपका सटीक रोडमैप तैयार किया जा रहा है...",
+      "सीखने के रिसोर्सेज ढूंढे जा रहे हैं...",
+      "बस कुछ ही पल और..."
+    ]
+  };
 
   useEffect(() => {
     let interval: any;
     if (status === AppStatus.LOADING) {
       interval = setInterval(() => {
-        setLoadingStep((prev) => (prev + 1) % loadingMessages.length);
+        setLoadingStep((prev) => (prev + 1) % loadingMessages[language].length);
       }, 2500);
     } else {
       setLoadingStep(0);
     }
     return () => clearInterval(interval);
-  }, [status]);
+  }, [status, language]);
 
   const handleStartAnalysis = useCallback(async (description: string, file?: File) => {
     setStatus(AppStatus.LOADING);
@@ -55,32 +65,36 @@ const App: React.FC = () => {
         fileData = { data, mimeType: file.type };
       }
 
-      const data = await analyzeCareer(description, fileData);
+      const data = await analyzeCareer(description, language, fileData);
       setResults(data);
       setStatus(AppStatus.RESULTS);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err: any) {
       console.error("App Error:", err);
-      setError(err.message || "Something went wrong. Deployment settings check karein.");
+      setError(language === 'hi' 
+        ? "कुछ गलत हो गया। कृपया अपनी सेटिंग्स चेक करें।" 
+        : err.message || "Something went wrong. Please check your deployment settings.");
       setStatus(AppStatus.ERROR);
     }
-  }, []);
+  }, [language]);
 
   const handleShowJobs = useCallback(async () => {
     setStatus(AppStatus.LOADING);
     setError(null);
     try {
-      const data = await fetchLatestJobsInIndia();
+      const data = await fetchLatestJobsInIndia(language);
       setJobs(data.jobs);
       setGrounding(data.groundingMetadata);
       setStatus(AppStatus.JOBS);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err: any) {
       console.error(err);
-      setError("Market data fetch nahi ho raha. Kripya check karein ki API Key sahi hai.");
+      setError(language === 'hi'
+        ? "मार्केट डेटा नहीं मिल रहा। कृपया चेक करें कि API Key सही है।"
+        : "Market data fetch failed. Please check if your API Key is correct.");
       setStatus(AppStatus.ERROR);
     }
-  }, []);
+  }, [language]);
 
   const reset = () => {
     setStatus(AppStatus.IDLE);
@@ -98,6 +112,8 @@ const App: React.FC = () => {
         onReset={reset} 
         onShowJobs={handleShowJobs}
         canGoBack={canGoBack}
+        language={language}
+        onLanguageChange={setLanguage}
       />
       
       <main className="flex-grow container mx-auto px-4 py-12 max-w-6xl relative">
@@ -106,8 +122,8 @@ const App: React.FC = () => {
 
         {status === AppStatus.IDLE && (
           <div className="relative z-10">
-            <Hero />
-            <AnalysisForm onSubmit={handleStartAnalysis} />
+            <Hero language={language} />
+            <AnalysisForm onSubmit={handleStartAnalysis} language={language} />
           </div>
         )}
 
@@ -122,16 +138,20 @@ const App: React.FC = () => {
             </div>
             
             <h2 className="text-3xl font-black text-white animate-pulse text-center tracking-tight mb-4 px-4">
-              {loadingMessages[loadingStep]}
+              {loadingMessages[language][loadingStep]}
             </h2>
-            <p className="text-slate-500 text-sm font-bold uppercase tracking-widest">SkillScan Engine Active</p>
+            <p className="text-slate-500 text-sm font-bold uppercase tracking-widest">
+              {language === 'hi' ? 'SkillScan इंजन सक्रिय है' : 'SkillScan Engine Active'}
+            </p>
           </div>
         )}
 
         {status === AppStatus.ERROR && (
           <div className="max-w-2xl mx-auto bg-slate-900 p-12 rounded-[3rem] shadow-2xl text-center border border-slate-800 relative z-10">
             <div className="text-amber-500 text-7xl mb-6">⚠️</div>
-            <h2 className="text-2xl font-black text-white mb-4 tracking-tight">Configuration Required</h2>
+            <h2 className="text-2xl font-black text-white mb-4 tracking-tight">
+              {language === 'hi' ? 'कॉन्फ़िगरेशन आवश्यक है' : 'Configuration Required'}
+            </h2>
             <p className="text-slate-400 mb-8 font-medium leading-relaxed">
               {error}
             </p>
@@ -149,25 +169,25 @@ const App: React.FC = () => {
               onClick={reset}
               className="w-full bg-slate-800 hover:bg-slate-700 text-white px-8 py-4 rounded-2xl font-black transition-all shadow-lg active:scale-95 border border-slate-700"
             >
-              Back to Home
+              {language === 'hi' ? 'होम पर वापस जाएं' : 'Back to Home'}
             </button>
           </div>
         )}
 
         {status === AppStatus.RESULTS && results && (
           <div className="relative z-10">
-            <ResultsView results={results} onReset={reset} />
+            <ResultsView results={results} onReset={reset} language={language} />
           </div>
         )}
 
         {status === AppStatus.JOBS && (
           <div className="relative z-10">
-            <JobBoard jobs={jobs} groundingMetadata={grounding} />
+            <JobBoard jobs={jobs} groundingMetadata={grounding} language={language} />
           </div>
         )}
       </main>
 
-      <Footer />
+      <Footer language={language} />
     </div>
   );
 };
