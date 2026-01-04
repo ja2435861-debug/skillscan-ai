@@ -90,9 +90,10 @@ const App: React.FC = () => {
     } catch (err: any) {
       console.error(err);
       setError(language === 'hi'
-        ? "मार्केट डेटा नहीं मिल रहा। कृपया चेक करें कि API Key सही है।"
-        : "Market data fetch failed. Please check if your API Key is correct.");
-      setStatus(AppStatus.ERROR);
+        ? "मार्केट डेटा नहीं मिल रहा। कृपया चेक करें कि API Key सही है और कोटा बचा है।"
+        : "Market data fetch failed. Your API key might have reached its quota limit.");
+      setJobs([]); // Ensure empty jobs to trigger internal error UI in JobBoard
+      setStatus(AppStatus.JOBS); // Stay in JOBS to show the Board with the internal error UI
     }
   }, [language]);
 
@@ -173,7 +174,13 @@ const App: React.FC = () => {
 
         {status === AppStatus.JOBS && (
           <div className="relative z-10">
-            <JobBoard jobs={jobs} groundingMetadata={grounding} language={language} />
+            <JobBoard 
+              jobs={jobs} 
+              groundingMetadata={grounding} 
+              language={language} 
+              onRetry={handleShowJobs}
+              error={error}
+            />
           </div>
         )}
       </main>

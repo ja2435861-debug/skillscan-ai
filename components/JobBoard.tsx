@@ -6,6 +6,8 @@ interface JobBoardProps {
   jobs: JobInfo[];
   groundingMetadata: any;
   language: Language;
+  onRetry?: () => void;
+  error?: string | null;
 }
 
 const JobCard: React.FC<{ job: JobInfo, language: Language }> = ({ job, language }) => (
@@ -40,7 +42,7 @@ const JobCard: React.FC<{ job: JobInfo, language: Language }> = ({ job, language
   </div>
 );
 
-const JobBoard: React.FC<JobBoardProps> = ({ jobs = [], groundingMetadata, language }) => {
+const JobBoard: React.FC<JobBoardProps> = ({ jobs = [], groundingMetadata, language, onRetry, error }) => {
   const [skillFilter, setSkillFilter] = useState('');
 
   const filteredJobs = useMemo(() => {
@@ -57,6 +59,58 @@ const JobBoard: React.FC<JobBoardProps> = ({ jobs = [], groundingMetadata, langu
   const privateJobs = filteredJobs.filter(j => j.type?.toLowerCase() === 'private' || j.type?.toLowerCase()?.includes('corp'));
   
   const fallbackJobs = (publicJobs.length === 0 && privateJobs.length === 0) ? filteredJobs : [];
+
+  const ErrorDisplay = () => (
+    <div className="animate-in fade-in zoom-in duration-500 max-w-2xl mx-auto">
+      <div className="bg-white p-10 rounded-[3rem] shadow-2xl border border-rose-100 text-center relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-2 bg-rose-500"></div>
+        <div className="text-6xl mb-6">🏜️</div>
+        <h3 className="text-2xl font-black text-slate-900 mb-4">
+          {language === 'hi' ? 'डेटा लोड करने में समस्या' : 'Connection Interrupted'}
+        </h3>
+        <p className="text-slate-500 text-sm mb-8 leading-relaxed px-4">
+          {error || (language === 'hi' 
+            ? "हमें मार्केट डेटा प्राप्त करने में कठिनाई हो रही है। कृपया सुनिश्चित करें कि आपका इंटरनेट और API की (API Key) सही है।"
+            : "We're having trouble reaching the live market feed. This usually happens due to a strict API quota or network timeout.")}
+        </p>
+        
+        <div className="bg-slate-50 rounded-3xl p-6 text-left mb-8 border border-slate-100">
+          <h4 className="text-[10px] font-black uppercase tracking-widest text-indigo-500 mb-3">
+            {language === 'hi' ? 'संभावित समाधान' : 'Possible Solutions'}
+          </h4>
+          <ul className="text-xs font-bold text-slate-600 space-y-3">
+            <li className="flex items-start gap-3">
+              <span className="text-emerald-500">✔</span>
+              {language === 'hi' ? 'अपनी Google Gemini API Key की कोटा लिमिट चेक करें' : 'Check your Google Gemini API quota limits'}
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="text-emerald-500">✔</span>
+              {language === 'hi' ? 'इंटरनेट कनेक्शन को रीफ्रेश करें' : 'Ensure you have a stable internet connection'}
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="text-emerald-500">✔</span>
+              {language === 'hi' ? 'कुछ मिनट बाद फिर से प्रयास करें' : 'Try again in a few minutes (Rate Limiting)'}
+            </li>
+          </ul>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-4">
+          <button 
+            onClick={onRetry}
+            className="flex-grow bg-indigo-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-indigo-500/20 active:scale-95 transition-all"
+          >
+            {language === 'hi' ? 'फिर से कोशिश करें' : 'Retry Connection'}
+          </button>
+          <button 
+            onClick={() => window.location.reload()}
+            className="flex-grow bg-slate-900 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs active:scale-95 transition-all"
+          >
+            {language === 'hi' ? 'ऐप रीफ्रेश करें' : 'Refresh App'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 space-y-12 pb-20">
@@ -99,7 +153,9 @@ const JobBoard: React.FC<JobBoardProps> = ({ jobs = [], groundingMetadata, langu
         </div>
       </div>
 
-      {(publicJobs.length > 0 || privateJobs.length > 0 || fallbackJobs.length > 0) ? (
+      {(error || (jobs.length === 0 && !skillFilter)) ? (
+        <ErrorDisplay />
+      ) : (publicJobs.length > 0 || privateJobs.length > 0 || fallbackJobs.length > 0) ? (
         <>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Public Section */}

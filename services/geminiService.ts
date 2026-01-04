@@ -27,51 +27,27 @@ export const analyzeCareer = async (
   const model = "gemini-3-pro-preview"; 
   
   const languageInstruction = language === 'hi' 
-    ? "VERY IMPORTANT: All text content in the JSON must be in HINDI language (using Devanagari script), but keep technical terms like 'Software Engineer' in English where appropriate. Summary should be in expert Hindi."
+    ? "VERY IMPORTANT: All text content in the JSON must be in HINDI language (Devanagari script), but keep specific subjects like 'Physics', 'Calculus' or 'Coding' in English. Output must be expert-level Hindi."
     : "All content should be in professional English.";
 
   const prompt = `
-    YOU ARE: SkillScan AI - India's #1 Career Super App & Study Mentor.
+    YOU ARE: SkillScan AI Super Mentor (Android Version).
     USER CONTEXT: "${userInput}"
-    LANGUAGE PREFERENCE: ${language === 'hi' ? 'Hindi' : 'English'}
+    CURRENT DATE: ${new Date().toLocaleDateString()}
+    LANGUAGE: ${language === 'hi' ? 'Hindi' : 'English'}
     
-    SPECIAL INSTRUCTION FOR STUDENTS: 
-    If the user is a student (10th/12th/College) asking for exam prep, you MUST provide:
-    1. A detailed hourly "dailyTimetable" (Daily Routine) starting from morning wake-up till sleep, focused on their subjects.
-    2. "learningResources" with REAL working links to YouTube channels like Khan Academy, Physics Wallah, Unacademy, or NCERT/Board portals relevant to their specific query.
-    
-    GOAL: Help the user achieve their target (e.g., 90% in boards or landing a job).
-    
+    SPECIAL TASK FOR EXAM PREP:
+    If the user mentions an exam (like 12th Boards, RBSE, CBSE, JEE), YOU MUST calculate the days remaining.
+    1. "dailyTimetable": Create a strict 24-hour routine optimized for the remaining days. Include Revision blocks, Mock Tests, and specific Subject Grinds.
+    2. "learningResources": Provide REAL YouTube links or Website URLs for the specific subjects mentioned. (Example: One Shot videos for RBSE Physics, Hindi Medium resources if applicable).
+    3. "studentGuidance": Give a strategy to score 90%+ in the remaining time.
+
     ${languageInstruction}
     
-    REQUIRED DATA POINTS FOR SUPER REPORT (JSON ONLY):
-    1. summary (Expert overview)
-    2. scopeAnalysis (Market 2025-2030)
-    3. resumeScore (overall, breakdown, critiques)
-    4. missingSkills (List of specific gaps)
-    5. atsOptimizations (specific tips)
-    6. coverLetter (ready-to-use)
-    7. interviewPrep (Questions + tips)
-    8. careerPaths (Multiple roles)
-    9. salaryInsights (India, Global)
-    10. roadmap (6-12 month milestones)
-    11. motivation (Powerful quote)
-    12. dailyMissions (Learning tasks)
-    13. futurePrediction (Next 5 years)
-    14. emergencyGuidance (Support)
-    15. badges (Gamification titles)
-    16. careerGrowthScore (0-100)
-    17. incomePotential (Estimated)
-    18. ninetyDayProgram (Milestones)
-    19. govtJobAssistant (Prep for relevant exams)
-    20. microInternships (Mock projects)
-    21. minIncomeSkills (Fast earning skills)
-    22. collegeCourseFinder (Best institutions)
-    23. studentGuidance (Academic advice)
-    24. dailyTimetable (Hourly routine slots: time, activity, details)
-    25. learningResources (List: title, description, url, sourceType)
+    REQUIRED DATA POINTS (JSON ONLY):
+    summary, scopeAnalysis, resumeScore, missingSkills, atsOptimizations, coverLetter, interviewPrep, careerPaths, salaryInsights, roadmap, motivation, dailyMissions, futurePrediction, emergencyGuidance, badges, careerGrowthScore, incomePotential, ninetyDayProgram, govtJobAssistant, microInternships, minIncomeSkills, collegeCourseFinder, studentGuidance, dailyTimetable, learningResources.
 
-    Ensure all data is 2025-current using Google Search tool.
+    Use Google Search to find current 2025 exam dates or high-quality educational links.
   `;
 
   const contents = fileData 
@@ -83,17 +59,17 @@ export const analyzeCareer = async (
       model,
       contents,
       config: {
-        systemInstruction: `You are SkillScan AI. Return strictly JSON. Output language: ${language === 'hi' ? 'Hindi' : 'English'}. For students, focus heavily on study routine and resources.`,
+        systemInstruction: "You are an Android-based Super Career & Study Mentor. Provide structured JSON. For students, focus on success routines and learning links.",
         responseMimeType: "application/json",
         temperature: 0.7,
-        thinkingConfig: { thinkingBudget: 32768 },
+        thinkingConfig: { thinkingBudget: 24576 },
         tools: [{ googleSearch: {} }]
       }
     });
 
     const parsed = parseGeminiJson(response.text || '{}');
     if (!parsed || !parsed.summary) {
-      throw new Error("AI engine did not return a complete career profile. Please try again.");
+      throw new Error("AI engine did not return a complete profile. Try again.");
     }
     return parsed as AnalysisResult;
   } catch (error: any) {
@@ -105,31 +81,18 @@ export const analyzeCareer = async (
 export const fetchLatestJobsInIndia = async (language: Language): Promise<{ jobs: JobInfo[], groundingMetadata: any }> => {
   const apiKey = process.env.API_KEY;
   if (!apiKey) throw new Error("API Key missing");
-
   const ai = new GoogleGenAI({ apiKey });
   const model = "gemini-3-flash-preview";
-  
-  const prompt = `Find 12 active job openings in India for early 2025. 
-  Output descriptions in ${language === 'hi' ? 'Hindi' : 'English'}.
-  JSON Format: { "jobs": [{ "title", "organization", "type", "location", "description", "sourceUrl" }] }`;
-
+  const prompt = `Find 12 active job openings in India 2025. JSON Format: { "jobs": [{ "title", "organization", "type", "location", "description", "sourceUrl" }] }`;
   try {
     const response = await ai.models.generateContent({
       model,
       contents: [{ parts: [{ text: prompt }] }],
-      config: {
-        tools: [{ googleSearch: {} }],
-        temperature: 0.1
-      }
+      config: { tools: [{ googleSearch: {} }], temperature: 0.1 }
     });
-
     const data = parseGeminiJson(response.text || "") || { jobs: [] };
-    return {
-      jobs: data.jobs || [],
-      groundingMetadata: response.candidates?.[0]?.groundingMetadata
-    };
+    return { jobs: data.jobs || [], groundingMetadata: response.candidates?.[0]?.groundingMetadata };
   } catch (error: any) {
-    console.error("Job Search Error:", error);
     return { jobs: [], groundingMetadata: null };
   }
 };

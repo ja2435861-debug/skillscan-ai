@@ -1,5 +1,17 @@
 {
-  "name": "SkillScan AI",
-  "description": "An expert career mentor and job market analyst that helps you navigate the 2025-2030 job market with personalized roadmaps and resource recommendations.",
+  "name": "SkillScan AI - Super App",
+  "short_name": "SkillScan",
+  "description": "Android-optimized career & study mentor. Personalized routines for 10th/12th Board exams and job market analysis 2025-2030.",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/1063/1063376.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
   "requestFramePermissions": []
 }
